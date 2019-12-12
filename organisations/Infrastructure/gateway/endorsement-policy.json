@@ -1,0 +1,44 @@
+{
+     "identities": [
+          {
+               "role": {
+                    "name": "member",
+                    "mspId": "InfrastructureMSP"
+               }
+          },
+          {
+               "role": {
+                    "name": "member",
+                    "mspId": "CapitalMSP"
+               }
+          },
+          {
+               "role": {
+                    "name": "member",
+                    "mspId": "CommunicationMSP"
+               }
+          },
+          {
+               "role": {
+                    "name": "member",
+                    "mspId": "EntertainmentMSP"
+               }
+          },
+          {
+               "role": {
+                    "name": "member",
+                    "mspId": "PowerMSP"
+               }
+          }
+     ],
+     "policy": {
+          "1-of": [
+               {
+                    "signed-by": 0
+               },
+               {
+                    "signed-by": 1
+               }
+          ]
+     }
+}

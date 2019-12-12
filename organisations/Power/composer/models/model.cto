@@ -1,0 +1,155 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/**
+ * Sample business network definition.
+ */
+namespace reliancenetwork
+
+asset Shipment identified by shipmentId {
+     o String shipmentId
+     o AssetType assetType
+     o ShipmentStatus shipmentStatus default = "Created"
+     o Long unitCount
+     --> Contract contract
+     o TemperatureArray[] temperature optional
+     o AccelerationArray[] acceleration optional
+     o GPSArray[] GPS optional
+}
+
+asset Contract identified by contractId {
+     o String contractId
+     --> Exporter exporter
+     --> Importer importer
+     --> Shipper shipper
+     o DateTime arrivalDateTimeDeadline
+     o DateTime actualArrivalDateTime optional
+     o Double unitPrice
+     o Double minTemperature
+     o Double maxTemperature
+     o Double maxAcceleration
+     o Double minPenaltyFactor
+     o Double maxPenaltyFactor
+     o Double accelerationPenaltyFactor
+}
+
+abstract concept ReadingConcept {
+     //Regular expression to validate latitude and longitude
+     o String latitude regex = /^(\\+|-)?(?:90(?:(?:\\.0{1,6})?)|(?:[0-9]|[1-8][0-9])(?:(?:\\.[0-9]{1,6})?))$/
+     o String longitude regex = /^(\+|-)?(?:180(?:(?:\.0{1,6})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\.[0-9]{1,6})?))$/
+}
+
+concept AccelerationArray extends ReadingConcept {
+     o Double accelerationX
+     o Double accelerationY
+     o Double accelerationZ
+}
+
+concept TemperatureArray extends ReadingConcept {
+     o Double temperature
+}
+
+concept GPSArray extends ReadingConcept {
+     o CompassDirection latitudeDirection
+     o CompassDirection longitudeDirection
+}
+
+abstract participant AbstractParticipant identified by email {
+     //Regular expression to validate email
+     o String email regex = /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/
+     o String address
+     o Double accountBalance
+}
+
+participant Exporter extends AbstractParticipant {}
+
+participant Shipper extends AbstractParticipant {}
+
+participant Importer extends AbstractParticipant {
+     o String latitude regex = /^(\\+|-)?(?:90(?:(?:\\.0{1,6})?)|(?:[0-9]|[1-8][0-9])(?:(?:\\.[0-9]{1,6})?))$/
+     o String longitude regex = /^(\+|-)?(?:180(?:(?:\.0{1,6})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\.[0-9]{1,6})?))$/
+}
+
+abstract transaction ShipmentTransaction {
+     --> Shipment shipment
+     o String latitude regex = /^(\\+|-)?(?:90(?:(?:\\.0{1,6})?)|(?:[0-9]|[1-8][0-9])(?:(?:\\.[0-9]{1,6})?))$/
+     o String longitude regex = /^(\+|-)?(?:180(?:(?:\.0{1,6})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\.[0-9]{1,6})?))$/
+     o DateTime readingDateTime
+}
+
+transaction AccelerationReading extends ShipmentTransaction {
+     o Double accelerationX
+     o Double accelerationY
+     o Double accelerationZ
+}
+
+transaction TemperatureReading extends ShipmentTransaction {
+     o Double temperature
+}
+
+transaction GPSReading extends ShipmentTransaction {
+     o CompassDirection latitudeDirection
+     o CompassDirection longitudeDirection
+}
+
+transaction ShipmentReceived {
+     --> Shipment shipment
+}
+
+transaction TransportShipment {
+     --> Shipment shipment
+}
+
+abstract event ShipmentEvent {
+     --> Shipment shipment
+     o String latitude regex = /^(\\+|-)?(?:90(?:(?:\\.0{1,6})?)|(?:[0-9]|[1-8][0-9])(?:(?:\\.[0-9]{1,6})?))$/
+     o String longitude regex = /^(\+|-)?(?:180(?:(?:\.0{1,6})?)|(?:[0-9]|[1-9][0-9]|1[0-7][0-9])(?:(?:\.[0-9]{1,6})?))$/
+     o DateTime readingDateTime
+     o String message
+}
+
+event TemperatureThresholdEvent extends ShipmentEvent {
+     o Double temperature
+}
+
+event AccelerationThresholdEvent extends ShipmentEvent {
+     o Double accelerationX
+     o Double accelerationY
+     o Double accelerationZ
+}
+
+event ShipmentInPort extends ShipmentEvent {}
+
+enum AssetType {
+     o Medicine
+     o Fuel
+     o Trucks
+     o Wires
+     o Tables
+     o Laptops
+     o Chairs
+}
+
+enum ShipmentStatus {
+     o Created
+     o InTransit
+     o Arrived
+}
+
+enum CompassDirection {
+     o N
+     o S
+     o E
+     o W
+}

@@ -1,0 +1,398 @@
+---
+#
+# The network connection profile provides client applications the information about the target
+# blockchain network that are necessary for the applications to interact with it. These are all
+# knowledge that must be acquired from out-of-band sources. This file provides such a source.
+#
+name: "reliancenetwork_byfn"
+
+#
+# Any properties with an "x-" prefix will be treated as application-specific, exactly like how naming
+# in HTTP headers or swagger properties work. The SDK will simply ignore these fields and leave
+# them for the applications to process. This is a mechanism for different components of an application
+# to exchange information that are not part of the standard schema described below. In particular,
+# the "x-type" property with the "hlfv1" value example below is used by Hyperledger Composer to
+# determine the type of Fabric networks (v0.6 vs. v1.0) it needs to work with.
+#
+x-type: "hlfv1"
+
+x-commitTimeout: 300
+
+#
+# Describe what the target network is/does.
+#
+description: "Reliance SCM network"
+
+#
+# Schema version of the content. Used by the SDK to apply the corresponding parsing rules.
+#
+version: "1.0.0"
+
+#
+# The client section is SDK-specific. These are the settings that the
+# NodeSDK will use to automatically set up a Client instance.
+#
+client:
+  # Which organization does this application instance belong to? The value must be the name of an org
+  # defined under "organizations" ... see below
+  organization: Infrastructure
+
+  # Some SDKs support pluggable KV stores, the properties under "credentialStore"
+  # are implementation specific
+  credentialStore:
+    # Specific to FileKeyValueStore.js or similar implementations in other SDKs. Can be others
+    # if using an alternative impl. For instance, CouchDBKeyValueStore.js would require an object
+    # here for properties like url, db name, etc.
+    path: "/tmp/hfc-kvs"
+
+    # Specific to the CryptoSuite implementation. Software-based implementations like
+    # CryptoSuite_ECDSA_AES.js in node SDK requires a key store. PKCS#11 based implementations does
+    # not.
+    cryptoStore:
+      # Specific to the underlying KeyValueStore that backs the crypto key store.
+      path: "/tmp/hfc-cvs"
+
+  # Sets the connection timeouts for new peer and orderer objects when the client creates
+  # peer and orderer objects during the client.getPeer() and client.getOrderer() calls
+  # or when the peer and orderer objects are created automatically when a channel
+  # is created by the client.getChannel() call.
+  connection:
+    timeout:
+       peer:
+         # the timeout in seconds to be used on requests to a peer,
+         # for example 'sendTransactionProposal'
+         endorser: 300
+         # the timeout in seconds to be used by applications when waiting for an
+         # event to occur. This time should be used in a javascript timer object
+         # that will cancel the event registration with the channel event hub instance.
+         eventHub: 300
+         # the timeout in seconds to be used when setting up the connection
+         # with a peer event hub. If the peer does not acknowledge the
+         # connection within the time, the application will be notified over the
+         # error callback if provided.
+         eventReg: 300
+       # the timeout in seconds to be used on request to the orderer,
+       # for example
+       orderer: 300
+
+#
+# [Optional]. But most apps would have this section so that channel objects can be constructed
+# based on the content below. If an app is creating channels, then it likely will not need this
+# section.
+#
+channels:
+  # name of the channel
+  reliancenetwork:
+    # Required. list of orderers designated by the application to use for transactions on this
+    # channel. This list can be a result of access control ("infrastructure" can only access "ordererA"), or
+    # operational decisions to share loads from applications among the orderers.  The values must
+    # be "names" of orgs defined under "organizations/peers"
+    orderers:
+      - orderer.reliancenetwork.com
+
+    # Required. list of peers from participating orgs
+    peers:
+      peer0.infrastructure.reliancenetwork.com:
+        # [Optional]. will this peer be sent transaction proposals for endorsement? The peer must
+        # have the chaincode installed. The app can also use this property to decide which peers
+        # to send the chaincode install request. Default: true
+        endorsingPeer: true
+
+        # [Optional]. will this peer be sent query proposals? The peer must have the chaincode
+        # installed. The app can also use this property to decide which peers to send the
+        # chaincode install request. Default: true
+        chaincodeQuery: true
+
+        # [Optional]. will this peer be sent query proposals that do not require chaincodes, like
+        # queryBlock(), queryTransaction(), etc. Default: true
+        ledgerQuery: true
+
+        # [Optional]. will this peer be the target of the SDK's listener registration? All peers can
+        # produce events but the app typically only needs to connect to one to listen to events.
+        # Default: true
+        eventSource: true
+
+      peer1.infrastructure.reliancenetwork.com:
+        endorsingPeer: false
+        chaincodeQuery: false
+        ledgerQuery: true
+        eventSource: false
+
+      peer0.capital.reliancenetwork.com:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+
+      peer1.capital.reliancenetwork.com:
+        endorsingPeer: false
+        chaincodeQuery: false
+        ledgerQuery: true
+        eventSource: false
+
+      peer0.communications.reliancenetwork.com:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+
+      peer1.communications.reliancenetwork.com:
+        endorsingPeer: false
+        chaincodeQuery: false
+        ledgerQuery: true
+        eventSource: false
+
+      peer0.entertainment.reliancenetwork.com:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+
+      peer1.entertainment.reliancenetwork.com:
+        endorsingPeer: false
+        chaincodeQuery: false
+        ledgerQuery: true
+        eventSource: false
+
+      peer0.power.reliancenetwork.com:
+        endorsingPeer: true
+        chaincodeQuery: true
+        ledgerQuery: true
+        eventSource: true
+
+      peer1.power.reliancenetwork.com:
+        endorsingPeer: false
+        chaincodeQuery: false
+        ledgerQuery: true
+        eventSource: false
+
+#
+# list of participating organizations in this network
+#
+organizations:
+  Infrastructure:
+    mspid: InfrastructureMSP
+
+    peers:
+      - peer0.infrastructure.reliancenetwork.com
+      - peer1.infrastructure.reliancenetwork.com
+
+    # [Optional]. Certificate Authorities issue certificates for identification purposes in a Fabric based
+    # network. Typically certificates provisioning is done in a separate process outside of the
+    # runtime network. Fabric-CA is a special certificate authority that provides a REST APIs for
+    # dynamic certificate management (enroll, revoke, re-enroll). The following section is only for
+    # Fabric-CA servers.
+    certificateAuthorities:
+      - ca-infrastructure
+
+  Capital:
+    mspid: CapitalMSP
+    peers:
+      - peer0.capital.reliancenetwork.com
+      - peer1.capital.reliancenetwork.com
+    certificateAuthorities:
+      - ca-capital
+
+  Communication:
+    mspid: CommunicationMSP
+    peers:
+      - peer0.communications.reliancenetwork.com
+      - peer1.communications.reliancenetwork.com
+    certificateAuthorities:
+      - ca-communications
+
+  Entertainment:
+    mspid: EntertainmentMSP
+    peers:
+      - peer0.entertainment.reliancenetwork.com
+      - peer1.entertainment.reliancenetwork.com
+    certificateAuthorities:
+      - ca-entertainment
+
+  Power:
+    mspid: PowerMSP
+    peers:
+      - peer0.power.reliancenetwork.com
+      - peer1.power.reliancenetwork.com
+    certificateAuthorities:
+      - ca-power
+
+#
+# List of orderers to send transaction and channel create/update requests to. For the time
+# being only one orderer is needed. If more than one is defined, which one get used by the
+# SDK is implementation specific. Consult each SDK's documentation for its handling of orderers.
+#
+orderers:
+  orderer.reliancenetwork.com:
+    url: grpcs://localhost:7050
+
+    # these are standard properties defined by the gRPC library
+    # they will be passed in as-is to gRPC client constructor
+    grpcOptions:
+      ssl-target-name-override: orderer.reliancenetwork.com
+
+    tlsCACerts:
+      path: /home/vivek/workspace/capstone/fabric-samples/reliance/crypto-config/ordererOrganizations/reliancenetwork.com/orderers/orderer.reliancenetwork.com/msp/tlscacerts/tlsca.reliancenetwork.com-cert.pem
+
+#
+# List of peers to send various requests to, including endorsement, query
+# and event listener registration.
+#
+peers:
+  peer0.infrastructure.reliancenetwork.com:
+    # this URL is used to send endorsement and query requests
+    url: grpcs://localhost:7051
+    grpcOptions:
+      ssl-target-name-override: peer0.infrastructure.reliancenetwork.com
+      request-timeout: 120001
+    tlsCACerts:
+      path: /home/vivek/workspace/capstone/fabric-samples/reliance/crypto-config/peerOrganizations/infrastructure.reliancenetwork.com/peers/peer0.infrastructure.reliancenetwork.com/msp/tlscacerts/tlsca.infrastructure.reliancenetwork.com-cert.pem
+  
+  peer1.infrastructure.reliancenetwork.com:
+    # this URL is used to send endorsement and query requests
+    url: grpcs://localhost:8051
+    grpcOptions:
+      ssl-target-name-override: peer1.infrastructure.reliancenetwork.com
+      request-timeout: 120001
+    tlsCACerts:
+      path: /home/vivek/workspace/capstone/fabric-samples/reliance/crypto-config/peerOrganizations/infrastructure.reliancenetwork.com/peers/peer1.infrastructure.reliancenetwork.com/msp/tlscacerts/tlsca.infrastructure.reliancenetwork.com-cert.pem
+  
+  peer0.power.reliancenetwork.com:
+    # this URL is used to send endorsement and query requests
+    url: grpcs://localhost:9051
+    grpcOptions:
+      ssl-target-name-override: peer0.power.reliancenetwork.com
+      request-timeout: 120001
+    tlsCACerts:
+      path: /home/vivek/workspace/capstone/fabric-samples/reliance/crypto-config/peerOrganizations/power.reliancenetwork.com/peers/peer0.power.reliancenetwork.com/msp/tlscacerts/tlsca.power.reliancenetwork.com-cert.pem
+  
+  peer1.power.reliancenetwork.com:
+    # this URL is used to send endorsement and query requests
+    url: grpcs://localhost:10051
+    grpcOptions:
+      ssl-target-name-override: peer1.power.reliancenetwork.com
+      request-timeout: 120001
+    tlsCACerts:
+      path: /home/vivek/workspace/capstone/fabric-samples/reliance/crypto-config/peerOrganizations/power.reliancenetwork.com/peers/peer1.power.reliancenetwork.com/msp/tlscacerts/tlsca.power.reliancenetwork.com-cert.pem
+  
+  peer0.communications.reliancenetwork.com:
+    # this URL is used to send endorsement and query requests
+    url: grpcs://localhost:11051
+    grpcOptions:
+      ssl-target-name-override: peer0.communications.reliancenetwork.com
+      request-timeout: 120001
+    tlsCACerts:
+      path: /home/vivek/workspace/capstone/fabric-samples/reliance/crypto-config/peerOrganizations/communications.reliancenetwork.com/peers/peer0.communications.reliancenetwork.com/msp/tlscacerts/tlsca.communications.reliancenetwork.com-cert.pem
+  
+  peer1.communications.reliancenetwork.com:
+    # this URL is used to send endorsement and query requests
+    url: grpcs://localhost:12051
+    grpcOptions:
+      ssl-target-name-override: peer1.communications.reliancenetwork.com
+      request-timeout: 120001
+    tlsCACerts:
+      path: /home/vivek/workspace/capstone/fabric-samples/reliance/crypto-config/peerOrganizations/communications.reliancenetwork.com/peers/peer1.communications.reliancenetwork.com/msp/tlscacerts/tlsca.communications.reliancenetwork.com-cert.pem
+  
+  peer0.entertainment.reliancenetwork.com:
+    # this URL is used to send endorsement and query requests
+    url: grpcs://localhost:13051
+    grpcOptions:
+      ssl-target-name-override: peer0.entertainment.reliancenetwork.com
+      request-timeout: 120001
+    tlsCACerts:
+      path: /home/vivek/workspace/capstone/fabric-samples/reliance/crypto-config/peerOrganizations/entertainment.reliancenetwork.com/peers/peer0.entertainment.reliancenetwork.com/msp/tlscacerts/tlsca.entertainment.reliancenetwork.com-cert.pem
+  
+  peer1.entertainment.reliancenetwork.com:
+    # this URL is used to send endorsement and query requests
+    url: grpcs://localhost:14051
+    grpcOptions:
+      ssl-target-name-override: peer1.entertainment.reliancenetwork.com
+      request-timeout: 120001
+    tlsCACerts:
+      path: /home/vivek/workspace/capstone/fabric-samples/reliance/crypto-config/peerOrganizations/entertainment.reliancenetwork.com/peers/peer1.entertainment.reliancenetwork.com/msp/tlscacerts/tlsca.entertainment.reliancenetwork.com-cert.pem
+  
+  peer0.capital.reliancenetwork.com:
+    # this URL is used to send endorsement and query requests
+    url: grpcs://localhost:15051
+    grpcOptions:
+      ssl-target-name-override: peer0.capital.reliancenetwork.com
+      request-timeout: 120001
+    tlsCACerts:
+      path: /home/vivek/workspace/capstone/fabric-samples/reliance/crypto-config/peerOrganizations/capital.reliancenetwork.com/peers/peer0.capital.reliancenetwork.com/msp/tlscacerts/tlsca.capital.reliancenetwork.com-cert.pem
+  
+  peer1.capital.reliancenetwork.com:
+    # this URL is used to send endorsement and query requests
+    url: grpcs://localhost:16051
+    grpcOptions:
+      ssl-target-name-override: peer1.capital.reliancenetwork.com
+      request-timeout: 120001
+    tlsCACerts:
+      path: /home/vivek/workspace/capstone/fabric-samples/reliance/crypto-config/peerOrganizations/capital.reliancenetwork.com/peers/peer1.capital.reliancenetwork.com/msp/tlscacerts/tlsca.capital.reliancenetwork.com-cert.pem
+
+# Fabric-CA is a special kind of Certificate Authority provided by Hyperledger Fabric which allows
+# certificate management to be done via REST APIs. Application may choose to use a standard
+# Certificate Authority instead of Fabric-CA, in which case this section would not be specified.
+#
+certificateAuthorities:
+  ca-infrastructure:
+    url: https://localhost:7054
+    # the properties specified under this object are passed to the 'http' client verbatim when
+    # making the request to the Fabric-CA server
+    httpOptions:
+      verify: false
+    tlsCACerts:
+      path: /home/vivek/workspace/capstone/fabric-samples/reliance/crypto-config/peerOrganizations/infrastructure.reliancenetwork.com/ca/ca.infrastructure.reliancenetwork.com-cert.pem
+
+    # Fabric-CA supports dynamic user enrollment via REST APIs. A "root" user, a.k.a registrar, is
+    # needed to enroll and invoke new users.
+    registrar:
+      - enrollId: admin
+        enrollSecret: adminpw
+    # [Optional] The optional name of the CA.
+    caName: ca-infrastructure
+
+  ca-power:
+    url: https://localhost:8054
+    httpOptions:
+      verify: false
+    tlsCACerts:
+      path: /home/vivek/workspace/capstone/fabric-samples/reliance/crypto-config/peerOrganizations/power.reliancenetwork.com/ca/ca.power.reliancenetwork.com-cert.pem
+    registrar:
+      - enrollId: admin
+        enrollSecret: adminpw
+    caName: ca-power
+
+  ca-communications:
+    url: https://localhost:9054
+    httpOptions:
+      verify: false
+    tlsCACerts:
+      path: /home/vivek/workspace/capstone/fabric-samples/reliance/crypto-config/peerOrganizations/communications.reliancenetwork.com/ca/ca.communications.reliancenetwork.com-cert.pem
+    registrar:
+      - enrollId: admin
+        enrollSecret: adminpw
+    caName: ca-communications
+
+  ca-entertainment:
+    url: https://localhost:10054
+    httpOptions:
+      verify: false
+    tlsCACerts:
+      path: /home/vivek/workspace/capstone/fabric-samples/reliance/crypto-config/peerOrganizations/entertainment.reliancenetwork.com/ca/ca.entertainment.reliancenetwork.com-cert.pem
+    registrar:
+      - enrollId: admin
+        enrollSecret: adminpw
+    caName: ca-entertainment
+  
+  ca-capital:
+    url: https://localhost:11054
+    httpOptions:
+      verify: false
+    tlsCACerts:
+      path: /home/vivek/workspace/capstone/fabric-samples/reliance/crypto-config/peerOrganizations/capital.reliancenetwork.com/ca/ca.capital.reliancenetwork.com-cert.pem
+    registrar:
+      - enrollId: admin
+        enrollSecret: adminpw
+    caName: ca-capital
+  
+  

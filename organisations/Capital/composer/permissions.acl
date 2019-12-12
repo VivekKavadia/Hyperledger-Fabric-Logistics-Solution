@@ -1,0 +1,118 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+rule AllAccess {
+     description: "Everybody can access everything"
+     participant: "org.hyperledger.composer.system.Participant"
+     operation: ALL
+     resource: "org.hyperledger.composer.system.**"
+     action: ALLOW
+}
+
+rule ExportersCanSeeOwnContractsOnly {
+     description: "Exporters can see only their own contracts"
+     participant(exporter): "reliancenetwork.Exporter"
+     operation: READ
+     resource(contract): "reliancenetwork.Contract"
+     condition: (contract.exporter.email == exporter.email)
+     action: ALLOW
+}
+
+rule ExportersCanSeeOwnShipmentsOnly {
+     description: "Exporters can see only their own shipments"
+     participant(exporter): "reliancenetwork.Exporter"
+     operation: READ
+     resource(shipment): "reliancenetwork.Shipment"
+     condition: (shipment.contract.exporter.email == exporter.email)
+     action: ALLOW
+}
+
+rule ExportersCanSeeSelfOnly {
+     description: "Exporters can see only themselves"
+     participant(exporter1): "reliancenetwork.Exporter"
+     operation: READ
+     resource(exporter2): "reliancenetwork.Exporter"
+     condition: (exporter1.email == exporter2.email)
+     action: ALLOW
+}
+
+rule ImportersCanSeeOwnContractsOnly {
+     description: "Importers can see only their own contracts"
+     participant(importer): "reliancenetwork.Importer"
+     operation: READ
+     resource(contract): "reliancenetwork.Contract"
+     condition: (contract.importer.email == importer.email)
+     action: ALLOW
+}
+
+rule ImportersCanSeeOwnShipmentsOnly {
+     description: "Importers can see only their own shipments"
+     participant(importer): "reliancenetwork.Importer"
+     operation: READ
+     resource(shipment): "reliancenetwork.Shipment"
+     condition: (shipment.contract.importer.email == importer.email)
+     action: ALLOW
+}
+
+rule ImportersCanSeeSelfsOnly {
+     description: "Importers can see only themselves"
+     participant(importer1): "reliancenetwork.Importer"
+     operation: READ
+     resource(importer2): "reliancenetwork.Importer"
+     condition: (importer1.email == importer2.email)
+     action: ALLOW
+}
+
+rule ShippersCanSeeOwnContractsOnly {
+     description: "Shippers can see only their own contracts"
+     participant(shipper): "reliancenetwork.Shipper"
+     operation: READ
+     resource(contract): "reliancenetwork.Contract"
+     condition: (contract.shipper.email == shipper.email)
+     action: ALLOW
+}
+
+rule ShippersCanSeeOwnShipmentsOnly {
+     description: "Shippers can see only their own shipments"
+     participant(shipper): "reliancenetwork.Shipper"
+     operation: READ
+     resource(shipment): "reliancenetwork.Shipment"
+     condition: (shipment.contract.shipper.email == shipper.email)
+     action: ALLOW
+}
+
+rule ShippersCanSeeSelfOnly {
+     description: "Shippers can see only themselves"
+     participant(shipper1): "reliancenetwork.Shipper"
+     operation: READ
+     resource(shipper2): "reliancenetwork.Shipper"
+     condition: (shipper1.email == shipper2.email)
+     action: ALLOW
+}
+
+rule NetworkAdminUser {
+     description: "Grant business network administrators full access to user resources"
+     participant: "org.hyperledger.composer.system.NetworkAdmin"
+     operation: ALL
+     resource: "**"
+     action: ALLOW
+}
+
+rule NetworkAdminSystem {
+     description: "Grant business network administrators full access to system resources"
+     participant: "org.hyperledger.composer.system.NetworkAdmin"
+     operation: ALL
+     resource: "org.hyperledger.composer.system.**"
+     action: ALLOW
+}
