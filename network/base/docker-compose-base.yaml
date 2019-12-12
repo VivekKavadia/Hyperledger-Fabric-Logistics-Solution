@@ -1,0 +1,246 @@
+# Copyright IBM Corp. All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+version: '2'
+
+services:
+
+  orderer.reliancenetwork.com:
+    container_name: orderer.reliancenetwork.com
+    extends:
+      file: peer-base.yaml
+      service: orderer-base
+    volumes:
+        - ../channel-artifacts/genesis.block:/var/hyperledger/orderer/orderer.genesis.block
+        - ../crypto-config/ordererOrganizations/reliancenetwork.com/orderers/orderer.reliancenetwork.com/msp:/var/hyperledger/orderer/msp
+        - ../crypto-config/ordererOrganizations/reliancenetwork.com/orderers/orderer.reliancenetwork.com/tls/:/var/hyperledger/orderer/tls
+        - orderer.reliancenetwork.com:/var/hyperledger/production/orderer
+    ports:
+      - 7050:7050
+
+  peer0.infrastructure.reliancenetwork.com:
+    container_name: peer0.infrastructure.reliancenetwork.com
+    extends:
+      file: peer-base.yaml
+      service: peer-base
+    environment:
+      - CORE_PEER_ID=peer0.infrastructure.reliancenetwork.com
+      - CORE_PEER_ADDRESS=peer0.infrastructure.reliancenetwork.com:7051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:7051
+      - CORE_PEER_CHAINCODEADDRESS=peer0.infrastructure.reliancenetwork.com:7052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:7052
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.infrastructure.reliancenetwork.com:8051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.infrastructure.reliancenetwork.com:7051
+      - CORE_PEER_LOCALMSPID=InfrastructureMSP
+    volumes:
+        - /var/run/:/host/var/run/
+        - ../crypto-config/peerOrganizations/infrastructure.reliancenetwork.com/peers/peer0.infrastructure.reliancenetwork.com/msp:/etc/hyperledger/fabric/msp
+        - ../crypto-config/peerOrganizations/infrastructure.reliancenetwork.com/peers/peer0.infrastructure.reliancenetwork.com/tls:/etc/hyperledger/fabric/tls
+        - peer0.infrastructure.reliancenetwork.com:/var/hyperledger/production
+    ports:
+      - 7051:7051
+
+  peer1.infrastructure.reliancenetwork.com:
+    container_name: peer1.infrastructure.reliancenetwork.com
+    extends:
+      file: peer-base.yaml
+      service: peer-base
+    environment:
+      - CORE_PEER_ID=peer1.infrastructure.reliancenetwork.com
+      - CORE_PEER_ADDRESS=peer1.infrastructure.reliancenetwork.com:8051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:8051
+      - CORE_PEER_CHAINCODEADDRESS=peer1.infrastructure.reliancenetwork.com:8052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:8052
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.infrastructure.reliancenetwork.com:8051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.infrastructure.reliancenetwork.com:7051
+      - CORE_PEER_LOCALMSPID=InfrastructureMSP
+    volumes:
+        - /var/run/:/host/var/run/
+        - ../crypto-config/peerOrganizations/infrastructure.reliancenetwork.com/peers/peer1.infrastructure.reliancenetwork.com/msp:/etc/hyperledger/fabric/msp
+        - ../crypto-config/peerOrganizations/infrastructure.reliancenetwork.com/peers/peer1.infrastructure.reliancenetwork.com/tls:/etc/hyperledger/fabric/tls
+        - peer1.infrastructure.reliancenetwork.com:/var/hyperledger/production
+
+    ports:
+      - 8051:8051
+
+  peer0.power.reliancenetwork.com:
+    container_name: peer0.power.reliancenetwork.com
+    extends:
+      file: peer-base.yaml
+      service: peer-base
+    environment:
+      - CORE_PEER_ID=peer0.power.reliancenetwork.com
+      - CORE_PEER_ADDRESS=peer0.power.reliancenetwork.com:9051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:9051
+      - CORE_PEER_CHAINCODEADDRESS=peer0.power.reliancenetwork.com:9052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:9052
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.power.reliancenetwork.com:10051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.power.reliancenetwork.com:9051
+      - CORE_PEER_LOCALMSPID=PowerMSP
+    volumes:
+        - /var/run/:/host/var/run/
+        - ../crypto-config/peerOrganizations/power.reliancenetwork.com/peers/peer0.power.reliancenetwork.com/msp:/etc/hyperledger/fabric/msp
+        - ../crypto-config/peerOrganizations/power.reliancenetwork.com/peers/peer0.power.reliancenetwork.com/tls:/etc/hyperledger/fabric/tls
+        - peer0.power.reliancenetwork.com:/var/hyperledger/production
+    ports:
+      - 9051:9051
+
+  peer1.power.reliancenetwork.com:
+    container_name: peer1.power.reliancenetwork.com
+    extends:
+      file: peer-base.yaml
+      service: peer-base
+    environment:
+      - CORE_PEER_ID=peer1.power.reliancenetwork.com
+      - CORE_PEER_ADDRESS=peer1.power.reliancenetwork.com:10051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:10051
+      - CORE_PEER_CHAINCODEADDRESS=peer1.power.reliancenetwork.com:10052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:10052
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.power.reliancenetwork.com:10051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.power.reliancenetwork.com:9051
+      - CORE_PEER_LOCALMSPID=PowerMSP
+    volumes:
+        - /var/run/:/host/var/run/
+        - ../crypto-config/peerOrganizations/power.reliancenetwork.com/peers/peer1.power.reliancenetwork.com/msp:/etc/hyperledger/fabric/msp
+        - ../crypto-config/peerOrganizations/power.reliancenetwork.com/peers/peer1.power.reliancenetwork.com/tls:/etc/hyperledger/fabric/tls
+        - peer1.power.reliancenetwork.com:/var/hyperledger/production
+
+    ports:
+      - 10051:10051
+
+  peer0.communications.reliancenetwork.com:
+    container_name: peer0.communications.reliancenetwork.com
+    extends:
+      file: peer-base.yaml
+      service: peer-base
+    environment:
+      - CORE_PEER_ID=peer0.communications.reliancenetwork.com
+      - CORE_PEER_ADDRESS=peer0.communications.reliancenetwork.com:11051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:11051
+      - CORE_PEER_CHAINCODEADDRESS=peer0.communications.reliancenetwork.com:11052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:11052
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.communications.reliancenetwork.com:12051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.communications.reliancenetwork.com:11051
+      - CORE_PEER_LOCALMSPID=CommunicationsMSP
+    volumes:
+        - /var/run/:/host/var/run/
+        - ../crypto-config/peerOrganizations/communications.reliancenetwork.com/peers/peer0.communications.reliancenetwork.com/msp:/etc/hyperledger/fabric/msp
+        - ../crypto-config/peerOrganizations/communications.reliancenetwork.com/peers/peer0.communications.reliancenetwork.com/tls:/etc/hyperledger/fabric/tls
+        - peer0.communications.reliancenetwork.com:/var/hyperledger/production
+    ports:
+      - 11051:11051
+
+  peer1.communications.reliancenetwork.com:
+    container_name: peer1.communications.reliancenetwork.com
+    extends:
+      file: peer-base.yaml
+      service: peer-base
+    environment:
+      - CORE_PEER_ID=peer1.communications.reliancenetwork.com
+      - CORE_PEER_ADDRESS=peer1.communications.reliancenetwork.com:12051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:12051
+      - CORE_PEER_CHAINCODEADDRESS=peer1.communications.reliancenetwork.com:12052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:12052
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.communications.reliancenetwork.com:12051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.communications.reliancenetwork.com:11051
+      - CORE_PEER_LOCALMSPID=CommunicationsMSP
+    volumes:
+        - /var/run/:/host/var/run/
+        - ../crypto-config/peerOrganizations/communications.reliancenetwork.com/peers/peer1.communications.reliancenetwork.com/msp:/etc/hyperledger/fabric/msp
+        - ../crypto-config/peerOrganizations/communications.reliancenetwork.com/peers/peer1.communications.reliancenetwork.com/tls:/etc/hyperledger/fabric/tls
+        - peer1.communications.reliancenetwork.com:/var/hyperledger/production
+
+    ports:
+      - 12051:12051
+
+  peer0.entertainment.reliancenetwork.com:
+    container_name: peer0.entertainment.reliancenetwork.com
+    extends:
+      file: peer-base.yaml
+      service: peer-base
+    environment:
+      - CORE_PEER_ID=peer0.entertainment.reliancenetwork.com
+      - CORE_PEER_ADDRESS=peer0.entertainment.reliancenetwork.com:13051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:13051
+      - CORE_PEER_CHAINCODEADDRESS=peer0.entertainment.reliancenetwork.com:13052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:13052
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.entertainment.reliancenetwork.com:14051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.entertainment.reliancenetwork.com:13051
+      - CORE_PEER_LOCALMSPID=EntertainmentMSP
+    volumes:
+        - /var/run/:/host/var/run/
+        - ../crypto-config/peerOrganizations/entertainment.reliancenetwork.com/peers/peer0.entertainment.reliancenetwork.com/msp:/etc/hyperledger/fabric/msp
+        - ../crypto-config/peerOrganizations/entertainment.reliancenetwork.com/peers/peer0.entertainment.reliancenetwork.com/tls:/etc/hyperledger/fabric/tls
+        - peer0.entertainment.reliancenetwork.com:/var/hyperledger/production
+    ports:
+      - 13051:13051
+
+  peer1.entertainment.reliancenetwork.com:
+    container_name: peer1.entertainment.reliancenetwork.com
+    extends:
+      file: peer-base.yaml
+      service: peer-base
+    environment:
+      - CORE_PEER_ID=peer1.entertainment.reliancenetwork.com
+      - CORE_PEER_ADDRESS=peer1.entertainment.reliancenetwork.com:14051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:14051
+      - CORE_PEER_CHAINCODEADDRESS=peer1.entertainment.reliancenetwork.com:14052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:14052
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.entertainment.reliancenetwork.com:14051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.entertainment.reliancenetwork.com:13051
+      - CORE_PEER_LOCALMSPID=EntertainmentMSP
+    volumes:
+        - /var/run/:/host/var/run/
+        - ../crypto-config/peerOrganizations/entertainment.reliancenetwork.com/peers/peer1.entertainment.reliancenetwork.com/msp:/etc/hyperledger/fabric/msp
+        - ../crypto-config/peerOrganizations/entertainment.reliancenetwork.com/peers/peer1.entertainment.reliancenetwork.com/tls:/etc/hyperledger/fabric/tls
+        - peer1.entertainment.reliancenetwork.com:/var/hyperledger/production
+
+    ports:
+      - 14051:14051
+
+  peer0.capital.reliancenetwork.com:
+    container_name: peer0.capital.reliancenetwork.com
+    extends:
+      file: peer-base.yaml
+      service: peer-base
+    environment:
+      - CORE_PEER_ID=peer0.capital.reliancenetwork.com
+      - CORE_PEER_ADDRESS=peer0.capital.reliancenetwork.com:15051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:15051
+      - CORE_PEER_CHAINCODEADDRESS=peer0.capital.reliancenetwork.com:15052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:15052
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.capital.reliancenetwork.com:16051
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer0.capital.reliancenetwork.com:15051
+      - CORE_PEER_LOCALMSPID=CapitalMSP
+    volumes:
+        - /var/run/:/host/var/run/
+        - ../crypto-config/peerOrganizations/capital.reliancenetwork.com/peers/peer0.capital.reliancenetwork.com/msp:/etc/hyperledger/fabric/msp
+        - ../crypto-config/peerOrganizations/capital.reliancenetwork.com/peers/peer0.capital.reliancenetwork.com/tls:/etc/hyperledger/fabric/tls
+        - peer0.capital.reliancenetwork.com:/var/hyperledger/production
+    ports:
+      - 15051:15051
+
+  peer1.capital.reliancenetwork.com:
+    container_name: peer1.capital.reliancenetwork.com
+    extends:
+      file: peer-base.yaml
+      service: peer-base
+    environment:
+      - CORE_PEER_ID=peer1.capital.reliancenetwork.com
+      - CORE_PEER_ADDRESS=peer1.capital.reliancenetwork.com:16051
+      - CORE_PEER_LISTENADDRESS=0.0.0.0:16051
+      - CORE_PEER_CHAINCODEADDRESS=peer1.capital.reliancenetwork.com:16052
+      - CORE_PEER_CHAINCODELISTENADDRESS=0.0.0.0:16052
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.capital.reliancenetwork.com:16051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer0.capital.reliancenetwork.com:15051
+      - CORE_PEER_LOCALMSPID=CapitalMSP
+    volumes:
+        - /var/run/:/host/var/run/
+        - ../crypto-config/peerOrganizations/capital.reliancenetwork.com/peers/peer1.capital.reliancenetwork.com/msp:/etc/hyperledger/fabric/msp
+        - ../crypto-config/peerOrganizations/capital.reliancenetwork.com/peers/peer1.capital.reliancenetwork.com/tls:/etc/hyperledger/fabric/tls
+        - peer1.capital.reliancenetwork.com:/var/hyperledger/production
+
+    ports:
+      - 16051:16051
